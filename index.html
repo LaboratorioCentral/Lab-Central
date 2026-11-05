@@ -1855,7 +1855,7 @@ function armarInicio() {
 armarInicio();
 
 function btnPdf(archivo) {
-  return archivo ? `<a class="btn-pdf" href="${archivo}" target="_blank" rel="noopener" download>Abrir PDF</a>`
+  return archivo ? `<a class="btn-pdf" href="${archivo}" target="_blank" rel="noopener">Abrir PDF</a>`
                  : `<span class="btn-pdf off">PDF próximamente</span>`;
 }
 document.getElementById("lista-fichas").innerHTML = fichasEpi.map(f =>
