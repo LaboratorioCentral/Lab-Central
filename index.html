@@ -1758,7 +1758,7 @@ function buscar(nombre) {
   const resultado = document.getElementById("resultado");
   resultado.innerHTML = "";
   if (!entrada) return;
-  registrarBusqueda(nombre || document.getElementById("busqueda").value);
+  const textoBuscado = nombre || document.getElementById("busqueda").value;
 
   const ps = Object.entries(perfiles)
     .map(([c, p]) => [c, p, puntaje(c, p, entrada)]).filter(x => x[2] !== null)
@@ -1771,7 +1771,9 @@ function buscar(nombre) {
   if (ps.length || coincidencias.length) {
     resultado.innerHTML = ps.map(([c, p]) => mostrarPerfil(c, p)).join("")
       + coincidencias.map(([c, i]) => mostrar(c, i)).join("");
+    registrarBusqueda(textoBuscado, true);
   } else {
+    registrarBusqueda(textoBuscado, false);
     const aprox = sugerirAproximados(entrada);
     if (aprox.length > 0) {
       resultado.innerHTML = `<div class="aviso-aprox">No encontramos exactamente lo que escribiste. ¿Quisiste decir <strong>${aprox[0].termino}</strong>?</div>`
@@ -1906,9 +1908,13 @@ document.addEventListener("click", e => {
   if (a && a.getAttribute("href")) gc("pdf/" + a.getAttribute("href").split("/").pop().replace(".pdf", ""), "PDF: " + a.getAttribute("href").split("/").pop(), true);
 });
 let _ultimaBusq = "";
-function registrarBusqueda(t) {
+function registrarBusqueda(t, encontrado) {
   t = (t || "").trim().toLowerCase().slice(0, 40);
-  if (t && t !== _ultimaBusq) { _ultimaBusq = t; gc("busqueda/" + t, "Búsqueda: " + t, true); }
+  const clave = (encontrado ? "1" : "0") + t;
+  if (t && clave !== _ultimaBusq) {
+    _ultimaBusq = clave;
+    gc((encontrado ? "busqueda/" : "sinres/") + t, (encontrado ? "Búsqueda: " : "Sin resultado: ") + t, true);
+  }
 }
 
 function limpiar() {
