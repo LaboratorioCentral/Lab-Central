@@ -377,6 +377,7 @@ button.borrar:hover {
 body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:radial-gradient(circle at 15% 0%,#d9e8f8 0%,transparent 55%),radial-gradient(circle at 100% 20%,#e3f3f8 0%,transparent 45%),linear-gradient(160deg,#f4f8fc,#eaf1f8);background-attachment:fixed}
 .btn-menu{background:linear-gradient(135deg,#f7fafe,#e8f1fb)}
 </style>
+<script data-goatcounter="https://labcentral-hnrg.goatcounter.com/count" data-goatcounter-settings='{"no_onload":true}' async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
 <div class="container">
@@ -1757,6 +1758,7 @@ function buscar(nombre) {
   const resultado = document.getElementById("resultado");
   resultado.innerHTML = "";
   if (!entrada) return;
+  registrarBusqueda(nombre || document.getElementById("busqueda").value);
 
   const ps = Object.entries(perfiles)
     .map(([c, p]) => [c, p, puntaje(c, p, entrada)]).filter(x => x[2] !== null)
@@ -1879,6 +1881,35 @@ function ir(v) {
   location.hash = v === "inicio" ? "" : v;   // dispara hashchange
 }
 window.addEventListener("hashchange", () => vista(vistaActual()));
+
+
+/* ---- Estadísticas (GoatCounter: sin cookies ni datos personales) ---- */
+function gc(path, titulo, evento) {
+  try {
+    let n = 0;
+    const t = setInterval(() => {
+      if (window.goatcounter && window.goatcounter.count) {
+        clearInterval(t);
+        window.goatcounter.count({ path: path, title: titulo || path, event: !!evento });
+      } else if (++n > 40) clearInterval(t);
+    }, 250);
+  } catch (e) {}
+}
+(function () {
+  let lugar = new URLSearchParams(location.search).get("lugar") || "directo";
+  if (!["guardia", "consultorios", "internacion", "directo"].includes(lugar)) lugar = "otro";
+  gc("qr/" + lugar, "Ingreso: " + lugar, false);
+})();
+window.addEventListener("hashchange", () => { const v = vistaActual(); if (v !== "inicio") gc("vista/" + v, "Pantalla: " + v, true); });
+document.addEventListener("click", e => {
+  const a = e.target.closest && e.target.closest(".btn-pdf");
+  if (a && a.getAttribute("href")) gc("pdf/" + a.getAttribute("href").split("/").pop().replace(".pdf", ""), "PDF: " + a.getAttribute("href").split("/").pop(), true);
+});
+let _ultimaBusq = "";
+function registrarBusqueda(t) {
+  t = (t || "").trim().toLowerCase().slice(0, 40);
+  if (t && t !== _ultimaBusq) { _ultimaBusq = t; gc("busqueda/" + t, "Búsqueda: " + t, true); }
+}
 
 function limpiar() {
   document.getElementById("busqueda").value = "";
